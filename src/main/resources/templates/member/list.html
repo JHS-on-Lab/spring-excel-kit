@@ -15,6 +15,17 @@
         .actions {
             margin-bottom: 20px;
         }
+        .excel-upload {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #uploadMessage {
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -29,7 +40,6 @@
         }
         button {
             padding: 6px 12px;
-            margin-right: 10px;
         }
     </style>
 </head>
@@ -40,23 +50,23 @@
 <!-- ================= Excel Actions ================= -->
 <div class="actions">
     <!-- Excel Upload -->
-    <form th:action="@{/members/excel/upload}"
-          method="post"
-          enctype="multipart/form-data"
-          style="display:inline;">
-
+    <div class="excel-upload">
         <input type="file"
-               name="file"
-               accept=".xlsx,.xls"
-               required />
+               id="excelFile"
+               accept=".xlsx,.xls" />
 
-        <button type="submit">Upload Excel</button>
-    </form>
+        <button type="button"
+                onclick="uploadExcel()">
+            Upload Excel
+        </button>
+
+        <div id="uploadMessage"></div>
+    </div>
 
     <!-- Excel Download -->
     <form th:action="@{/members/excel}"
           method="get"
-          style="display:inline;">
+          class="excel-download">
 
         <button type="submit">Download Excel</button>
     </form>
@@ -86,6 +96,44 @@
     </tr>
     </tbody>
 </table>
+<script>
+    function uploadExcel() {
+        const fileInput = document.getElementById("excelFile");
+        const messageDiv = document.getElementById("uploadMessage");
 
+        if (!fileInput.files || fileInput.files.length === 0) {
+            messageDiv.style.color = "red";
+            messageDiv.textContent = "Please select an Excel file.";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        fetch("/api/members/excel/upload", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text);
+                });
+            }
+            return response.text();
+        })
+        .then(message => {
+            messageDiv.style.color = "green";
+            messageDiv.textContent = message;
+
+            // 필요하면 업로드 후 목록 새로고침
+            // window.location.reload();
+        })
+        .catch(error => {
+            messageDiv.style.color = "red";
+            messageDiv.textContent = error.message;
+        });
+    }
+</script>
 </body>
 </html>
