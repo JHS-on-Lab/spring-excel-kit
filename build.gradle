@@ -29,6 +29,9 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-h2console'
 
+    // JDBC
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
     // Template Engine
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
