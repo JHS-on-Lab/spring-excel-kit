@@ -53,7 +53,7 @@
     <div class="excel-upload">
         <input type="file"
                id="excelFile"
-               accept=".xlsx,.xls" />
+               accept=".xlsx,.xls"/>
 
         <button type="button"
                 onclick="uploadExcel()">
@@ -63,13 +63,11 @@
         <div id="uploadMessage"></div>
     </div>
 
+    <br />
     <!-- Excel Download -->
-    <form th:action="@{/members/excel}"
-          method="get"
-          class="excel-download">
-
-        <button type="submit">Download Excel</button>
-    </form>
+    <button type="button" onclick="downloadExcel()">
+        Download Excel
+    </button>
 </div>
 
 <!-- ================= Member Table ================= -->
@@ -132,6 +130,37 @@
         .catch(error => {
             messageDiv.style.color = "red";
             messageDiv.textContent = error.message;
+        });
+    }
+
+    function downloadExcel() {
+        fetch('/api/members/excel/download', {
+            method: 'GET'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text);
+                });
+            }
+            return response.blob();
+        })
+        .then(blob => {
+
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'members.xlsx';
+
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            alert("Download failed: " + error.message);
         });
     }
 </script>
